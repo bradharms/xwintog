@@ -1,8 +1,7 @@
 # xwintog
 
-## Description
-
-Focus or start an X11 application based on a configuration file.
+A Linux command line tool that either focuses a running X11 application or runs
+a command according to a configuration file.
 
 This is used to simulate the effect of windowing systems that use a dock to
 conditionally either start an app on the dock or else switch focus onto it,
