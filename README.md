@@ -11,7 +11,7 @@ This is designed to be used in conjunction with a global keyboard shortcut
 manager such as xbindkeys to create hot keys that can be used to open or
 switch to apps.
 
-## Usage
+## Command Line Usage
 
 ```bash
 xwintog {APP_NAME}
@@ -19,9 +19,56 @@ xwintog {APP_NAME}
 
 ## Dependencies
 
-The host system must have xdotool installed.
+- The host system must have [xdotool](https://github.com/jordansissel/xdotool) installed.
+- Not a strict dependency, but xwintog is designed to be used with [xbindkeys](https://www.nongnu.org/xbindkeys/) if you want to map it to keybindings.
 
-See: <https://github.com/jordansissel/xdotool>
+## Installation Example
+
+1. Clone this repo somewhere, such as your home folder:
+
+        git clone https://github.com/bradharms/xwintog.git "$HOME/xwintog"
+
+2. Add the binary to a PATH location:
+
+        sudo ln -s "$HOME/xwintog/bin/xwintog" /usr/local/bin
+
+3. Configure a local config file with entries for apps you use:
+
+        # $HOME/.xwintogrc
+
+        # Firefox
+        window[firefox]="--classname ^Navigator$"
+        command[firefox]="firefox"
+
+        # Thunderbird
+        window[thunderbird]="--classname ^Thunderbird$"
+        command[thunderbird]="thunderbird"
+
+        # etc.
+
+4. From the shell, test your configuration like this:
+
+        # Open Firefox, or switch to it if it's already open
+        xwintog firefox
+
+        # Open Thunderbird, or switch to it if it's already open
+        xwintog thunderbird
+
+5. Map each app configuration into your xbindkeys configuration:
+
+        # $HOME/.xbindkeysrc
+
+        # Map Firefox to F1
+        "xwintog firefox"
+          F1
+
+        # Map Thunderbird to F2
+        "xwintog thunderbird"
+          F2
+
+        # etc.
+
+    ...and then kill and restart xbindkeys.
 
 ## Configuration
 
@@ -52,37 +99,11 @@ command[APP_NAME]="COMMAND"
 Command to execute if no window is found for the application. This will
 be executed via Bash.
 
-## Examples
-
-From the shell:
-
-```bash
-# Open Firefox, or switch to it if it's already open
-xwintog firefox
-
-# Open Thunderbird, or switch to it if it's already open
-xwintog thunderbird
-```
-
-To make this work, write a config file like this:
-
-```bash
-# ~/.xwintogrc:
-
-# Firefox
-window[firefox]="--classname ^Navigator$"
-command[firefox]="firefox"
-
-# Thunderbird
-window[thunderbird]="--classname ^Thunderbird$"
-command[thunderbird]="thunderbird"
-```
-
 ## Tips
 
 - This will only work with X11 based displays, not Wayland.
 
-- The intended way to use this tool is in conjunction with xbindkeys, wherein
+- The intended way to use this tool is in conjunction with [xbindkeys](https://www.nongnu.org/xbindkeys/), wherein
   you can map each app configured in xwintog to a keyboard key, combination
   of keys, or another gesture. However, it can theoretically be used anywhere
   else, too.
@@ -94,15 +115,16 @@ command[thunderbird]="thunderbird"
   into blocks.
 
 - Familiarize yourself with the way xdotool search works when identifying
-  windows, and use xprop to figure out which window details are best for
-  identifying the window. It's not always completely obvious. For example,
-  Firefox requires the string "--classname ^Navigator$" as the string, because
-  Firefox will create multiple winodws that all have "firefox" in the name,
-  but the browser window itself is called "Navigator". Furthermore, you
-  have to ensure you
+  windows, and use [xprop](https://linux.die.net/man/1/xprop) or
+  [xwininfo](https://linux.die.net/man/1/xwininfo) to figure out which window
+  details are best for identifying the window. It's not always completely
+  obvious. For example, Firefox requires the string `--classname ^Navigator$` as
+  the string, because Firefox will create multiple windows that all have
+  "firefox" in the name, but the browser window itself is called "Navigator".
 
 ## See Also
 
-- xdotool: <https://github.com/jordansissel/xdotool>
 - xbindkeys: <https://www.nongnu.org/xbindkeys/>
+- xdotool: <https://github.com/jordansissel/xdotool>
 - xprop: <https://linux.die.net/man/1/xprop>
+- xwininfo: <https://linux.die.net/man/1/xwininfo>
