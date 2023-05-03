@@ -1,0 +1,101 @@
+#!/usr/bin/bash
+
+set -e
+
+# Location of the config file
+declare -g __xwintog_configPath="$HOME/.xwintogrc"
+
+# Command used to execute this script
+declare -g __xwintog_script="$0"
+
+# App identified by the command line
+declare -g __xwintog_app;
+
+# App window identified by the command line
+declare -g __xwintog_win;
+
+# App command identified by the command line
+declare -g __xwintog_cmd;
+
+# Config options
+declare -gA window;
+declare -gA command;
+
+__xwintog.main() {
+  __xwintog_app="$1";
+
+  __xwintog.assertDeps;
+  __xwintog.assertUsage;
+  __xwintog.loadConfig;
+  __xwintog.toggle;
+}
+
+__xwintog.assertDeps() {
+  # Verify we have the system tools we need
+  if ! which xdotool >/dev/null 2>&1 ; then
+    echo 1>&2 "Error: xdotool is not installed. Please install it using the" \
+      "appropriate steps for your operating system and try again.";
+    exit 1;
+  fi
+}
+
+__xwintog.assertUsage() {
+  if [ -n "$__xwintog_app" ]; then
+    return;
+  fi
+
+  echo >&2 "Error: An app name is required.";
+  echo >&2;
+  echo >&2 "Usage: $__xwintog_script {APP_NAME}";
+  echo >&2
+  echo >&2 "See http://github.com/bradharms/xwintog for more information."
+  exit 1;
+}
+
+__xwintog.loadConfig() {
+  # Load the configuration file if it exists, otherwise fail with an error.
+  if [ -r "$__xwintog_configPath" ]; then
+    source "$__xwintog_configPath";
+  else
+    echo 1>&2 "Error: Config file at \"$__xwintog_configPath\" not found. This " \
+      "is needed to configure xwintog. Please create the file and fill it out according" \
+      "to documentation and try again.";
+    exit 1;
+  fi
+
+  # Get the config for the given app name
+  __xwintog_win="${window[$__xwintog_app]}";
+  __xwintog_cmd="${command[$__xwintog_app]}";
+
+  # Verify all required parts of the app's config are present
+  if [ -z "$__xwintog_win" ] || [ -z "$__xwintog_cmd" ]; then
+    echo 1>&2 "Error: The following details for \"$__xwintog_app\" are missing from the xwtoogle configuration file:";
+    echo 1>&2;
+  if [ -z "$__xwintog_cmd" ]; then
+    echo 1>&2 "  commands[$__xwintog_app]=\"<COMMAND>\"";
+  fi;
+  if [ -z "$__xwintog_win" ]; then
+    echo 1>&2 "  windows[$__xwintog_app]=\"<WINDOW_ID_STRING>\""
+  fi
+    echo 1>&2;
+    echo 1>&2 "Please fill out these missing details in the configuration file and try again.";
+    exit 1;
+  fi
+}
+
+__xwintog.toggle() {
+  # Find all windows matching the search criteria
+  declare winId;
+  winId=$(xdotool search --limit 1 $__xwintog_win || true);
+
+  # If no results were returned, assume we need to open the app
+  if [ -z "$winId" ]; then
+    $__xwintog_cmd &
+    exit 0;
+  fi
+
+  # If a result was found, focus the window with the ID
+  xdotool windowactivate "$winId";
+}
+
+__xwintog.main "$@"
