@@ -109,10 +109,11 @@ be executed via Bash.
   else, too.
 
 - The configuration file is just a normal bash file. You can create and set
-  variables, perform logic, etc.
+  variables, perform logic, etc. and it will be invoked every time xwintog is
+  called.
 
 - It is recommended that you keep all parts of an app's configuration grouped
-  into blocks.
+  into together.
 
 - Familiarize yourself with the way xdotool search works when identifying
   windows, and use [xprop](https://linux.die.net/man/1/xprop) or
@@ -121,6 +122,16 @@ be executed via Bash.
   obvious. For example, Firefox requires the string `--classname ^Navigator$` as
   the string, because Firefox will create multiple windows that all have
   "firefox" in the name, but the browser window itself is called "Navigator".
+
+- Many modern desktop apps have their own internal way of revealing existing
+  windows when their associated CLI command is invoked, as is the case with the
+  aforementioned Firefox. Such apps tend to have hidden background windows that
+  will come up when searching for the app's name using xdotool search, but
+  those background windows aren't the ones you probably want to reveal with
+  xwintog, and trying to do so will often fail with X11 errors. The solution is
+  to use xprop or xwinifo to find something unique in the name or class of the
+  target window that distinguishes it from all the others, and use that in the
+  window identification string or regex.
 
 ## See Also
 
