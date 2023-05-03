@@ -40,6 +40,12 @@ Window identification string for an application, where STRING is the string.
 The string is a set of arguments passed to the `xdotool search`
 sub-command.
 
+> **NOTE:** Getting the right string can be tricky. Xdotool search interprets
+> names as regular expressions, which means that if you don't wrap the name
+> inside of beginning and ending symbols (ie. `^like this$`) then the name can
+> match any part of the window title or class. If you want to match an exact
+> class name then you have to bookend it with `^` and `$`.
+
 ```bash
 command[APP_NAME]="COMMAND"
 ```
@@ -49,38 +55,28 @@ be executed via Bash.
 
 ## Examples
 
-### Firefox
-
-From ~/.xwintogrc:
-
-```bash
-...
-window[firefox]="--classname Navigator"
-command[firefox]="firefox"
-...
-```
-
 From the shell:
 
 ```bash
+# Open Firefox, or switch to it if it's already open
 xwintog firefox
-```
 
-### Thunderbird
-
-From ~/.xwintogrc:
-
-```bash
-...
-window[thunderbird]="--classname thunderbird"
-command[thunderbird]="thunderbird"
-...
-```
-
-From the shell:
-
-```bash
+# Open Thunderbird, or switch to it if it's already open
 xwintog thunderbird
+```
+
+To make this work, write a config file like this:
+
+```bash
+# ~/.xwintogrc:
+
+# Firefox
+window[firefox]="--classname ^Navigator$"
+command[firefox]="firefox"
+
+# Thunderbird
+window[thunderbird]="--classname ^Thunderbird$"
+command[thunderbird]="thunderbird"
 ```
 
 ## Tips
@@ -101,9 +97,10 @@ xwintog thunderbird
 - Familiarize yourself with the way xdotool search works when identifying
   windows, and use xprop to figure out which window details are best for
   identifying the window. It's not always completely obvious. For example,
-  Firefox requires the string "--classname Navigator" as the string, because
-  "firefox" creates windows that aren't meant to be visible, and you may
-  end up identifying the wrong one.
+  Firefox requires the string "--classname ^Navigator$" as the string, because
+  Firefox will create multiple winodws that all have "firefox" in the name,
+  but the browser window itself is called "Navigator". Furthermore, you
+  have to ensure you
 
 ## See Also
 
