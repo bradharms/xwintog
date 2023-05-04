@@ -85,25 +85,40 @@ __xwintog.loadConfig() {
 }
 
 __xwintog.toggle() {
-  # Find the window matching the search criteria
-  declare winId;
-  winId=$(xdotool search $__xwintog_win);
+  # Find the windows matching the search criteria
+  declare winIds;
+  winIds=$(xdotool search $__xwintog_win || true);
 
-  # Filter the winId if a filter exists for the app
+  # If a filter exists for the app, filter them
   declare fil;
   fil=${filter[$__xwintog_app]}
   if [ -n "$fil" ]; then
-    winId=$(echo "$winId" | $fil)
+    winIds=$(echo "$winIds" | $fil)
   fi;
 
   # If no results were returned, assume we need to open the app
-  if [ -z "$winId" ]; then
+  if [ -z "$winIds" ]; then
     $__xwintog_cmd &
     exit 0;
   fi
 
-  # If a result was found, focus the window with the ID
-  xdotool windowactivate "$winId";
+  # Get the focused window
+  declare fWinId;
+  fWinId=$(xdotool getwindowfocus);
+
+  # If any of the windows are the focused one, minimize it
+  while IFS= read -r winId || [[ -n $winId ]]; do
+    if [ "$fWinId" = "$winId" ]; then
+      # If this is the focused window, minimize it
+      xdotool windowminimize "$winId";
+      return;
+    fi
+  done < <(printf '%s' "$winIds")
+
+  # If none of the windows were focused, try to activate all of them
+  while IFS= read -r winId || [[ -n $winId ]]; do
+    xdotool windowactivate "$winId" 2>/dev/null || true;
+  done < <(printf '%s' "$winIds")
 }
 
 __xwintog.main "$@"
