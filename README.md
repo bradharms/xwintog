@@ -61,7 +61,7 @@ xwintog {APP_NAME}
         # Open Thunderbird, or switch to it if it's already open
         xwintog thunderbird
 
-5. Map each app configuration into your xbindkeys configuration:
+5. Optionally, map each app configuration into your xbindkeys configuration:
 
         # $HOME/.xbindkeysrc
 
