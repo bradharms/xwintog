@@ -20,6 +20,7 @@ declare -g __xwintog_cmd;
 # Config options
 declare -gA window;
 declare -gA command;
+declare -gA filter;
 
 __xwintog.main() {
   __xwintog_app="$1";
@@ -84,9 +85,16 @@ __xwintog.loadConfig() {
 }
 
 __xwintog.toggle() {
-  # Find all windows matching the search criteria
+  # Find the window matching the search criteria
   declare winId;
-  winId=$(xdotool search --limit 1 $__xwintog_win || true);
+  winId=$(xdotool search $__xwintog_win);
+
+  # Filter the winId if a filter exists for the app
+  declare fil;
+  fil=${filter[$__xwintog_app]}
+  if [ -n "$fil" ]; then
+    winId=$(echo "$winId" | $fil)
+  fi;
 
   # If no results were returned, assume we need to open the app
   if [ -z "$winId" ]; then

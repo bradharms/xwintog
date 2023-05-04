@@ -37,11 +37,11 @@ xwintog {APP_NAME}
         # $HOME/.xwintogrc
 
         # Firefox
-        window[firefox]="--classname ^Navigator$"
+        window[firefox]="--limit 1 --classname ^Navigator$"
         command[firefox]="firefox"
 
         # Thunderbird
-        window[thunderbird]="--classname ^Thunderbird$"
+        window[thunderbird]="--limit 1 --classname ^Thunderbird$"
         command[thunderbird]="thunderbird"
 
         # etc.
@@ -78,9 +78,7 @@ each application managed by xwintog, where the key of each array is a
 symbolic name of the app being configured. These arrays are as follows,
 where APP_NAME is substituted with the name of the app being configured:
 
-```bash
-window[APP_NAME]="STRING"
-```
+### `window[APP_NAME]="STRING"`
 
 Window identification string for an application, where STRING is the string.
 The string is a set of arguments passed to the `xdotool search`
@@ -92,9 +90,24 @@ sub-command.
 > match any part of the window title or class. If you want to match an exact
 > class name then you have to bookend it with `^` and `$`.
 
+Example:
+
 ```bash
-command[APP_NAME]="COMMAND"
+window[firefox]="--classname ^Navigator$"
 ```
+
+### `filter[APP_NAME]="COMMAND"`
+
+Optional filter for the output of `xdotool search`. This can be used to reduce
+the the number of resulting window IDs down to 1 using `head` and `tail`.
+
+Example:
+
+```bash
+filter[firefox]="tail -n 1"
+```
+
+### `command[APP_NAME]="COMMAND"`
 
 Command to execute if no window is found for the application. This will
 be executed via Bash.
@@ -113,25 +126,44 @@ be executed via Bash.
   called.
 
 - It is recommended that you keep all parts of an app's configuration grouped
-  into together.
+  together.
 
-- Familiarize yourself with the way xdotool search works when identifying
-  windows, and use [xprop](https://linux.die.net/man/1/xprop) or
+- Read the man page on `xdotool search` and then use
+  [xprop](https://linux.die.net/man/1/xprop) or
   [xwininfo](https://linux.die.net/man/1/xwininfo) to figure out which window
   details are best for identifying the window. It's not always completely
   obvious. For example, Firefox requires the string `--classname ^Navigator$` as
   the string, because Firefox will create multiple windows that all have
   "firefox" in the name, but the browser window itself is called "Navigator".
 
+- Some apps tend to have hidden background windows that will come up when
+  searching for the app's name using xdotool search, but those background
+  windows aren't the ones you probably want to reveal with xwintog, and trying
+  to do so will often fail with X11 errors. The solution is to use xprop or
+  xwinifo to find something unique in the name or class of the target window
+  that distinguishes it from all the others, and use that in the window
+  identification string or regex.
+
+- If you can't find a way to identify a window using xdotool search alone, a
+  way to "hack" the results is provided in the form of the `filter` option,
+  which lets you use Linux's `head` or `tail` commands to do some post
+  processing on the results of `xdotool search`:
+
+        # Get only the FIRST matching window ID:
+        window[APP_NAME]="--classname ^APP_NAME$"
+        filter[APP_NAME]="head -n 1"
+        command[APP_NAME]="APP_NAME"
+
+        # Get only the LAST matching window ID:
+        window[APP_NAME]="--classname ^APP_NAME$"
+        filter[APP_NAME]="tail -n 1"
+        command[APP_NAME]="APP_NAME"
+
 - Many modern desktop apps have their own internal way of revealing existing
   windows when their associated CLI command is invoked, as is the case with the
-  aforementioned Firefox. Such apps tend to have hidden background windows that
-  will come up when searching for the app's name using xdotool search, but
-  those background windows aren't the ones you probably want to reveal with
-  xwintog, and trying to do so will often fail with X11 errors. The solution is
-  to use xprop or xwinifo to find something unique in the name or class of the
-  target window that distinguishes it from all the others, and use that in the
-  window identification string or regex.
+  aforementioned Firefox. This can be used as a fallback in the event that you
+  can't get xwintog to work. In this case you forgo using xwintog entirely and
+  simply call that command directly from your xkeybindrc.
 
 ## See Also
 
