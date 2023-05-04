@@ -37,11 +37,11 @@ xwintog {APP_NAME}
         # $HOME/.xwintogrc
 
         # Firefox
-        window[firefox]="--limit 1 --classname ^Navigator$"
+        window[firefox]="--classname ^Navigator$"
         command[firefox]="firefox"
 
         # Thunderbird
-        window[thunderbird]="--limit 1 --classname ^Thunderbird$"
+        window[thunderbird]="--classname ^Mail$"
         command[thunderbird]="thunderbird"
 
         # etc.
