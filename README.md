@@ -178,11 +178,6 @@ useful, so it is being retained for now.
   of keys, or another gesture. However, it can theoretically be used anywhere
   else, too.
 
-- The configuration file is just a normal bash file. You can create and set
-  variables, perform logic, etc. and it will be invoked every time xwintog is
-  called. The only requirement for it is that the variables `WINDOW` and
-  `COMMAND` get set before it ends.
-
 - Read the man page on `xdotool search` and then use
   [xprop](https://linux.die.net/man/1/xprop) or
   [xwininfo](https://linux.die.net/man/1/xwininfo) to figure out which window
@@ -198,14 +193,14 @@ useful, so it is being retained for now.
 
         case $APP in
 
-          APP_NAME)
+          APP_NAME_1)
             WINDOW="--classname ^APP_NAME$"
             # Get only the FIRST matching window ID:
             FILTER="head -n 1"
             COMMAND="APP_NAME"
             ;;
 
-          APP_NAME
+          APP_NAME_2)
             WINDOW="--classname ^APP_NAME$"
             # Get only the LAST matching window ID:
             FILTER="tail -n 1"
@@ -213,6 +208,11 @@ useful, so it is being retained for now.
             ;;
 
         esac
+
+- The configuration file is just a normal bash file. You can create and set
+  variables, perform logic, etc. and it will be invoked every time xwintog is
+  called. The only requirement for it is that the variables `WINDOW` and
+  `COMMAND` get set before it ends.
 
 ## See Also
 
