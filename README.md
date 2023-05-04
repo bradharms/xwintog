@@ -159,12 +159,6 @@ be executed via Bash.
         filter[APP_NAME]="tail -n 1"
         command[APP_NAME]="APP_NAME"
 
-- Many modern desktop apps have their own internal way of revealing existing
-  windows when their associated CLI command is invoked, as is the case with the
-  aforementioned Firefox. This can be used as a fallback in the event that you
-  can't get xwintog to work. In this case you forgo using xwintog entirely and
-  simply call that command directly from your xkeybindrc.
-
 ## See Also
 
 - xbindkeys: <https://www.nongnu.org/xbindkeys/>
