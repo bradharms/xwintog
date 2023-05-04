@@ -9,21 +9,15 @@ declare -g __xwintog_configPath="$HOME/.xwintogrc"
 declare -g __xwintog_script="$0"
 
 # App identified by the command line
-declare -g __xwintog_app;
-
-# App window identified by the command line
-declare -g __xwintog_win;
-
-# App command identified by the command line
-declare -g __xwintog_cmd;
+declare -g APP;
 
 # Config options
-declare -gA window;
-declare -gA command;
-declare -gA filter;
+declare -g WINDOW;
+declare -g COMMAND;
+declare -g FILTER;
 
 __xwintog.main() {
-  __xwintog_app="$1";
+  APP="$1";
 
   __xwintog.assertDeps;
   __xwintog.assertUsage;
@@ -41,7 +35,7 @@ __xwintog.assertDeps() {
 }
 
 __xwintog.assertUsage() {
-  if [ -n "$__xwintog_app" ]; then
+  if [ -n "$APP" ]; then
     return;
   fi
 
@@ -64,20 +58,16 @@ __xwintog.loadConfig() {
     exit 1;
   fi
 
-  # Get the config for the given app name
-  __xwintog_win="${window[$__xwintog_app]}";
-  __xwintog_cmd="${command[$__xwintog_app]}";
-
   # Verify all required parts of the app's config are present
-  if [ -z "$__xwintog_win" ] || [ -z "$__xwintog_cmd" ]; then
-    echo 1>&2 "Error: The following details for \"$__xwintog_app\" are missing from the xwtoogle configuration file:";
+  if [ -z "$WINDOW" ] || [ -z "$COMMAND" ]; then
+    echo 1>&2 "Error: The following required details for app named \"$APP\" are missing from the xwintog configuration file:";
     echo 1>&2;
-  if [ -z "$__xwintog_cmd" ]; then
-    echo 1>&2 "  commands[$__xwintog_app]=\"<COMMAND>\"";
-  fi;
-  if [ -z "$__xwintog_win" ]; then
-    echo 1>&2 "  windows[$__xwintog_app]=\"<WINDOW_ID_STRING>\""
-  fi
+    if [ -z "$WINDOW" ]; then
+      echo 1>&2 "  WINDOW=\"<WINDOW_ID_STRING>\""
+    fi
+    if [ -z "$COMMAND" ]; then
+      echo 1>&2 "  COMMAND=\"<COMMAND>\"";
+    fi;
     echo 1>&2;
     echo 1>&2 "Please fill out these missing details in the configuration file and try again.";
     exit 1;
@@ -87,18 +77,16 @@ __xwintog.loadConfig() {
 __xwintog.toggle() {
   # Find the windows matching the search criteria
   declare winIds;
-  winIds=$(xdotool search $__xwintog_win || true);
+  winIds=$(xdotool search $WINDOW || true);
 
   # If a filter exists for the app, filter them
-  declare fil;
-  fil=${filter[$__xwintog_app]}
-  if [ -n "$fil" ]; then
-    winIds=$(echo "$winIds" | $fil)
+  if [ -n "$FILTER" ]; then
+    winIds=$(echo "$winIds" | $FILTER)
   fi;
 
   # If no results were returned, assume we need to open the app
   if [ -z "$winIds" ]; then
-    $__xwintog_cmd &
+    $COMMAND &
     exit 0;
   fi
 

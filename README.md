@@ -22,7 +22,7 @@ xwintog {APP_NAME}
 - The host system must have [xdotool](https://github.com/jordansissel/xdotool) installed.
 - Not a strict dependency, but xwintog is designed to be used with [xbindkeys](https://www.nongnu.org/xbindkeys/) if you want to map it to keybindings.
 
-## Installation Example
+## Setup
 
 1. Clone this repo somewhere, such as your home folder:
 
@@ -32,19 +32,26 @@ xwintog {APP_NAME}
 
         sudo ln -s "$HOME/xwintog/bin/xwintog" /usr/local/bin
 
-3. Configure a local config file with entries for apps you use:
+3. Configure a local config file with entries for apps you use by using a bash
+   `case` statement on the global `$APP` variable :
 
         # $HOME/.xwintogrc
 
-        # Firefox
-        window[firefox]="--classname ^Navigator$"
-        command[firefox]="firefox"
+        case $APP in
 
-        # Thunderbird
-        window[thunderbird]="--classname ^Mail$"
-        command[thunderbird]="thunderbird"
+          firefox)
+            WINDOW="--classname ^Navigator$"
+            COMMAND="firefox"
+            ;;
 
-        # etc.
+          thunderbird)
+            WINDOW="--classname ^Mail$"
+            COMMAND="thunderbird"
+            ;;
+
+          # (and so on)
+
+        esac
 
 4. From the shell, test your configuration like this:
 
@@ -68,19 +75,21 @@ xwintog {APP_NAME}
 
         # etc.
 
-    ...and then kill and restart xbindkeys.
+    ...and then restart xbindkeys.
 
 ## Configuration
 
 Configuration is located at ~/.xwintogrc in the form of a bash source
-include. Within the file, a set of associative arrays are used to configure
-each application managed by xwintog, where the key of each array is a
-symbolic name of the app being configured. These arrays are as follows,
-where APP_NAME is substituted with the name of the app being configured:
+include. Within the file, a set of global variables must be defined to configure
+each application managed by xwintog. As shown in the previous example, you
+can determine what to set the variables to by looking at the `$APP` variable,
+which will be set by xwintog beforehand.
 
-### `window[APP_NAME]="STRING"`
+Recognized variables are as follows:
 
-Window identification string for an application, where `STRING` is the string.
+### `WINDOW="<STRING>"`
+
+Window identification string for an application, where `<STRING>` is the string.
 The string is a set of arguments passed to the `xdotool search`
 sub-command.
 
@@ -93,10 +102,16 @@ class name then you have to bookend it with `^` and `$`.
 Example:
 
 ```bash
-window[firefox]="--classname ^Navigator$"
+case $APP in
+
+  firefox)
+    WINDOW="--classname ^Navigator$"
+    ;;
+
+esac
 ```
 
-### `filter[APP_NAME]="COMMAND"`
+### `FILTER="<COMMAND_LINE>"`
 
 Optional filter for the output of `xdotool search`. This can be used to reduce
 the the number of resulting window IDs down to 1 using `head` and `tail`.
@@ -104,13 +119,55 @@ the the number of resulting window IDs down to 1 using `head` and `tail`.
 Example:
 
 ```bash
-filter[firefox]="tail -n 1"
+case $APP in
+
+  firefox)
+    FILTER="tail -n 1"
+    ;;
+
+esac
 ```
 
-### `command[APP_NAME]="COMMAND"`
+### `COMMAND="<COMMAND_LINE>"`
 
 Command to execute if no window is found for the application. This will
 be executed via Bash.
+
+```bash
+case $APP in
+
+  firefox)
+    COMMAND="firefox"
+    ;;
+
+esac
+```
+
+# Behavior
+
+This section describes the behavior of the xwintog script in more detail:
+
+1. The script will start by checking for system dependencies and terminate with
+   an error if they're not present.
+2. Next it will ensure that an app name was passed, and fail with an error if
+   not.
+3. The user's `.xwintogrc` config file is sourced. This script must set the
+   required variables by looking at the global variable `$APP` that was set by
+   the xwintog in the previous step.
+4. We check that all required variables (ie. `COMMAND` and `WINDOW`) were set
+   by the config file, and fail with an error if not.
+5. Proceed to look for windows matching the search string specified by `WINDOW`.
+6. If no windows were found, we execute `COMMAND` in a detached shell and then
+   exit.
+7. If any windows were found, we check to see if any of them are currently
+   focused. If so, we minimize that window and then exit.
+8. If none of the windows were focused, we attempt to focus and reveal each one
+   sequentially. (Any failures will be ignored.)
+
+The last two steps have the effect of cycling through windows that match the
+search string by way of iteratively minimizing each one to reveal the next one
+in the stack. This behavior is somewhat unintentional but could potentially be
+useful, so it is being retained for now.
 
 ## Tips
 
@@ -123,10 +180,8 @@ be executed via Bash.
 
 - The configuration file is just a normal bash file. You can create and set
   variables, perform logic, etc. and it will be invoked every time xwintog is
-  called.
-
-- It is recommended that you keep all parts of an app's configuration grouped
-  together.
+  called. The only requirement for it is that the variables `WINDOW` and
+  `COMMAND` get set before it ends.
 
 - Read the man page on `xdotool search` and then use
   [xprop](https://linux.die.net/man/1/xprop) or
@@ -136,28 +191,28 @@ be executed via Bash.
   the string, because Firefox will create multiple windows that all have
   "firefox" in the name, but the browser window itself is called "Navigator".
 
-- Some apps tend to have hidden background windows that will come up when
-  searching for the app's name using xdotool search, but those background
-  windows aren't the ones you probably want to reveal with xwintog, and trying
-  to do so will often fail with X11 errors. The solution is to use xprop or
-  xwinifo to find something unique in the name or class of the target window
-  that distinguishes it from all the others, and use that in the window
-  identification string or regex.
+- If you want to identify only a single window but can't find a way to use an
+  xdotool search string to do this, a way to "hack" the results is provided in
+  the form of the `FILTER` option, which lets you use Linux's `head` or `tail`
+  commands to do some post processing on the results of `xdotool search`:
 
-- If you can't find a way to identify a window using xdotool search alone, a
-  way to "hack" the results is provided in the form of the `filter` option,
-  which lets you use Linux's `head` or `tail` commands to do some post
-  processing on the results of `xdotool search`:
+        case $APP in
 
-        # Get only the FIRST matching window ID:
-        window[APP_NAME]="--classname ^APP_NAME$"
-        filter[APP_NAME]="head -n 1"
-        command[APP_NAME]="APP_NAME"
+          APP_NAME)
+            WINDOW="--classname ^APP_NAME$"
+            # Get only the FIRST matching window ID:
+            FILTER="head -n 1"
+            COMMAND="APP_NAME"
+            ;;
 
-        # Get only the LAST matching window ID:
-        window[APP_NAME]="--classname ^APP_NAME$"
-        filter[APP_NAME]="tail -n 1"
-        command[APP_NAME]="APP_NAME"
+          APP_NAME
+            WINDOW="--classname ^APP_NAME$"
+            # Get only the LAST matching window ID:
+            FILTER="tail -n 1"
+            COMMAND="APP_NAME"
+            ;;
+
+        esac
 
 ## See Also
 
