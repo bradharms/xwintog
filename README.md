@@ -80,15 +80,15 @@ where APP_NAME is substituted with the name of the app being configured:
 
 ### `window[APP_NAME]="STRING"`
 
-Window identification string for an application, where STRING is the string.
+Window identification string for an application, where `STRING` is the string.
 The string is a set of arguments passed to the `xdotool search`
 sub-command.
 
-> **NOTE:** Getting the right string can be tricky. Xdotool search interprets
-> names as regular expressions, which means that if you don't wrap the name
-> inside of beginning and ending symbols (ie. `^like this$`) then the name can
-> match any part of the window title or class. If you want to match an exact
-> class name then you have to bookend it with `^` and `$`.
+**NOTE:** Getting the right string can be tricky. Xdotool search interprets
+names as regular expressions, which means that if you don't wrap the name
+inside of beginning and ending symbols (ie. `^like this$`) then the name can
+match any part of the window title or class. If you want to match an exact
+class name then you have to bookend it with `^` and `$`.
 
 Example:
 
