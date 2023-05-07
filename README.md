@@ -13,7 +13,7 @@ switch to apps.
 
 ## Command Line Usage
 
-> **NOTE:** See [Setup](#setup) is required before this will work.
+> **NOTE:** [Setup](#setup) is required before this will work.
 
 ```bash
 xwintog <APP_NAME>
