@@ -43,7 +43,7 @@ __xwintog.assertUsage() {
   echo >&2;
   echo >&2 "Usage: $__xwintog_script <APP_NAME>";
   echo >&2;
-  echo >&2 "See http://github.com/bradharms/xwintog for more information."
+  echo >&2 "See http://github.com/bradharms/xwintog for more information.";
   exit 1;
 }
 
@@ -56,16 +56,17 @@ __xwintog.loadConfig() {
       "is needed to configure xwintog. Please create the file and fill it out according" \
       "to documentation and try again.";
     echo >&2;
-    echo >&2 "See http://github.com/bradharms/xwintog for more information."; >&2;
+    echo >&2 "See http://github.com/bradharms/xwintog for more information.";
     exit 1;
   fi
 
   # Verify all required parts of the app's config are present
   if [ -z "$WINDOW" ] || [ -z "$COMMAND" ]; then
-    echo >&2 "Error: The following required details for app named \"$APP\" are missing from the xwintog configuration file:";
+    echo >&2 "Error: The following required details for app named \"$APP\" are missing" \
+      "from the xwintog configuration file:";
     echo >&2;
     if [ -z "$WINDOW" ]; then
-      echo >&2 "  WINDOW=\"<WINDOW_ID_STRING>\""
+      echo >&2 "  WINDOW=\"<WINDOW_ID_STRING>\"";
     fi
     if [ -z "$COMMAND" ]; then
       echo >&2 "  COMMAND=\"<COMMAND>\"";
@@ -73,7 +74,7 @@ __xwintog.loadConfig() {
     echo >&2;
     echo >&2 "Please fill out these missing details in the configuration file and try again.";
     echo >&2;
-    echo >&2 "See http://github.com/bradharms/xwintog for more information."; >&2;
+    echo >&2 "See http://github.com/bradharms/xwintog for more information.";
     exit 1;
   fi
 }
