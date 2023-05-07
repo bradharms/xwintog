@@ -1,12 +1,12 @@
 #!/usr/bin/bash
 
-set -e
+set -e;
 
 # Location of the config file
-declare -g __xwintog_configPath="$HOME/.xwintogrc"
+declare -g __xwintog_configPath="$HOME/.xwintogrc";
 
 # Command used to execute this script
-declare -g __xwintog_script="$0"
+declare -g __xwintog_script="$0";
 
 # App identified by the command line
 declare -g APP;
@@ -43,7 +43,7 @@ __xwintog.assertUsage() {
   echo >&2;
   echo >&2 "Usage: $__xwintog_script <APP_NAME>";
   echo >&2;
-  echo >&2 "See http://github.com/bradharms/xwintog for more information.";
+  __xwintog.showHelpUrl;
   exit 1;
 }
 
@@ -53,17 +53,18 @@ __xwintog.loadConfig() {
     source "$__xwintog_configPath";
   else
     echo >&2 "Error: Config file at \"$__xwintog_configPath\" not found. This" \
-      "is needed to configure xwintog. Please create the file and fill it out according" \
-      "to documentation and try again.";
+      "is needed to configure xwintog. Please create the file and fill it" \
+      "out according to documentation and try again.";
     echo >&2;
-    echo >&2 "See http://github.com/bradharms/xwintog for more information.";
+    __xwintog.showHelpUrl;
     exit 1;
   fi
 
   # Verify all required parts of the app's config are present
   if [ -z "$WINDOW" ] || [ -z "$COMMAND" ]; then
-    echo >&2 "Error: The following required details for app named \"$APP\" are missing" \
-      "from the xwintog configuration file:";
+    echo >&2 "Error: The following required details for app named \"$APP\""\
+      "were not provided by the xwintog configuration file at" \
+      "\"$__xwintog_configPath\":";
     echo >&2;
     if [ -z "$WINDOW" ]; then
       echo >&2 "  WINDOW=\"<WINDOW_ID_STRING>\"";
@@ -72,11 +73,16 @@ __xwintog.loadConfig() {
       echo >&2 "  COMMAND=\"<COMMAND>\"";
     fi;
     echo >&2;
-    echo >&2 "Please fill out these missing details in the configuration file and try again.";
+    echo >&2 "Please ensure these values are set by the configuration file" \
+      "and try again.";
     echo >&2;
-    echo >&2 "See http://github.com/bradharms/xwintog for more information.";
+    __xwintog.showHelpUrl;
     exit 1;
   fi
+}
+
+__xwintog.showHelpUrl() {
+  echo >&2 "See http://github.com/bradharms/xwintog for more information.";
 }
 
 __xwintog.toggle() {
