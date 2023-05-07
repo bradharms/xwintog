@@ -14,8 +14,10 @@ switch to apps.
 ## Command Line Usage
 
 ```bash
-xwintog {APP_NAME}
+xwintog <APP_NAME>
 ```
+
+> **NOTE:** Configuration is required before this will work. See details below.
 
 ## Dependencies
 
