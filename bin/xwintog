@@ -41,8 +41,8 @@ __xwintog.assertUsage() {
 
   echo >&2 "Error: An app name is required.";
   echo >&2;
-  echo >&2 "Usage: $__xwintog_script {APP_NAME}";
-  echo >&2
+  echo >&2 "Usage: $__xwintog_script <APP_NAME>";
+  echo >&2;
   echo >&2 "See http://github.com/bradharms/xwintog for more information."
   exit 1;
 }
