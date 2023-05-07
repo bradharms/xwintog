@@ -28,7 +28,7 @@ __xwintog.main() {
 __xwintog.assertDeps() {
   # Verify we have the system tools we need
   if ! which xdotool >/dev/null 2>&1 ; then
-    echo 1>&2 "Error: xdotool is not installed. Please install it using the" \
+    echo >&2 "Error: xdotool is not installed. Please install it using the" \
       "appropriate steps for your operating system and try again.";
     exit 1;
   fi
@@ -52,24 +52,28 @@ __xwintog.loadConfig() {
   if [ -r "$__xwintog_configPath" ]; then
     source "$__xwintog_configPath";
   else
-    echo 1>&2 "Error: Config file at \"$__xwintog_configPath\" not found. This " \
+    echo >&2 "Error: Config file at \"$__xwintog_configPath\" not found. This" \
       "is needed to configure xwintog. Please create the file and fill it out according" \
       "to documentation and try again.";
+    echo >&2;
+    echo >&2 "See http://github.com/bradharms/xwintog for more information."; >&2;
     exit 1;
   fi
 
   # Verify all required parts of the app's config are present
   if [ -z "$WINDOW" ] || [ -z "$COMMAND" ]; then
-    echo 1>&2 "Error: The following required details for app named \"$APP\" are missing from the xwintog configuration file:";
-    echo 1>&2;
+    echo >&2 "Error: The following required details for app named \"$APP\" are missing from the xwintog configuration file:";
+    echo >&2;
     if [ -z "$WINDOW" ]; then
-      echo 1>&2 "  WINDOW=\"<WINDOW_ID_STRING>\""
+      echo >&2 "  WINDOW=\"<WINDOW_ID_STRING>\""
     fi
     if [ -z "$COMMAND" ]; then
-      echo 1>&2 "  COMMAND=\"<COMMAND>\"";
+      echo >&2 "  COMMAND=\"<COMMAND>\"";
     fi;
-    echo 1>&2;
-    echo 1>&2 "Please fill out these missing details in the configuration file and try again.";
+    echo >&2;
+    echo >&2 "Please fill out these missing details in the configuration file and try again.";
+    echo >&2;
+    echo >&2 "See http://github.com/bradharms/xwintog for more information."; >&2;
     exit 1;
   fi
 }
