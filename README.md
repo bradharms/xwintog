@@ -42,13 +42,13 @@ xwintog <APP_NAME>
         case $APP in
 
           firefox)
-            WINDOW="--classname ^Navigator$"
-            COMMAND="firefox"
+            APP_WINDOW_SEARCH="--classname ^Navigator$"
+            APP_COMMAND="firefox"
             ;;
 
           thunderbird)
-            WINDOW="--classname ^Mail$"
-            COMMAND="thunderbird"
+            APP_WINDOW_SEARCH="--classname ^Mail$"
+            APP_COMMAND="thunderbird"
             ;;
 
           # (and so on)
@@ -89,7 +89,7 @@ which will be set by xwintog beforehand.
 
 Recognized variables are as follows:
 
-### `WINDOW="<STRING>"`
+### `APP_WINDOW_SEARCH="<STRING>"`
 
 Window identification string for an application, where `<STRING>` is the string.
 The string is a set of arguments passed to the `xdotool search`
@@ -107,13 +107,13 @@ Example:
 case $APP in
 
   firefox)
-    WINDOW="--classname ^Navigator$"
+    APP_WINDOW_SEARCH="--classname ^Navigator$"
     ;;
 
 esac
 ```
 
-### `FILTER="<COMMAND_LINE>"`
+### `APP_WINDOW_SEARCH_FILTER="<COMMAND>"`
 
 Optional filter for the output of `xdotool search`. This can be used to reduce
 the the number of resulting window IDs down to 1 using `head` and `tail`.
@@ -124,13 +124,13 @@ Example:
 case $APP in
 
   firefox)
-    FILTER="tail -n 1"
+    APP_WINDOW_SEARCH_FILTER="tail -n 1"
     ;;
 
 esac
 ```
 
-### `COMMAND="<COMMAND_LINE>"`
+### `APP_COMMAND="<COMMAND>"`
 
 Command to execute if no window is found for the application. This will
 be executed via Bash.
@@ -139,7 +139,7 @@ be executed via Bash.
 case $APP in
 
   firefox)
-    COMMAND="firefox"
+    APP_COMMAND="firefox"
     ;;
 
 esac
@@ -156,11 +156,13 @@ This section describes the behavior of the xwintog script in more detail:
 3. The user's `.xwintogrc` config file is sourced. This script must set the
    required variables by looking at the global variable `$APP` that was set by
    the xwintog in the previous step.
-4. We check that all required variables (ie. `COMMAND` and `WINDOW`) were set
-   by the config file, and fail with an error if not.
-5. Proceed to look for windows matching the search string specified by `WINDOW`.
-6. If no windows were found, we execute `COMMAND` in a detached shell and then
-   exit.
+4. We check that all required variables (ie. `APP_COMMAND` and
+   `APP_WINDOW_SEARCH`) were set by the config file, and fail with an error if
+   not.
+5. Proceed to look for windows matching the search string specified by
+   `APP_WINDOW_SEARCH`.
+6. If no windows were found, we execute `APP_COMMAND` in a detached shell and
+   then exit.
 7. If any windows were found, we check to see if any of them are currently
    focused. If so, we minimize that window and then exit.
 8. If none of the windows were focused, we attempt to focus and reveal each one
@@ -175,7 +177,8 @@ useful, so it is being retained for now.
 
 - This will only work with X11 based displays, not Wayland.
 
-- The intended way to use this tool is in conjunction with [xbindkeys](https://www.nongnu.org/xbindkeys/), wherein
+- The intended way to use this tool is in conjunction with
+  [xbindkeys](https://www.nongnu.org/xbindkeys/), wherein
   you can map each app configured in xwintog to a keyboard key, combination
   of keys, or another gesture. However, it can theoretically be used anywhere
   else, too.
@@ -190,31 +193,32 @@ useful, so it is being retained for now.
 
 - If you want to identify only a single window but can't find a way to use an
   xdotool search string to do this, a way to "hack" the results is provided in
-  the form of the `FILTER` option, which lets you use Linux's `head` or `tail`
-  commands to do some post processing on the results of `xdotool search`:
+  the form of the `APP_WINDOW_SEARCH_FILTER` option, which lets you use Linux's
+  `head` or `tail` commands to do some post processing on the results of
+  `xdotool search`:
 
         case $APP in
 
           APP_NAME_1)
-            WINDOW="--classname ^APP_NAME$"
+            APP_WINDOW_SEARCH="--classname ^APP_NAME$"
             # Get only the FIRST matching window ID:
-            FILTER="head -n 1"
-            COMMAND="APP_NAME"
+            APP_WINDOW_SEARCH_FILTER="head -n 1"
+            APP_COMMAND="APP_NAME"
             ;;
 
           APP_NAME_2)
-            WINDOW="--classname ^APP_NAME$"
+            APP_WINDOW_SEARCH="--classname ^APP_NAME$"
             # Get only the LAST matching window ID:
-            FILTER="tail -n 1"
-            COMMAND="APP_NAME"
+            APP_WINDOW_SEARCH_FILTER="tail -n 1"
+            APP_COMMAND="APP_NAME"
             ;;
 
         esac
 
 - The configuration file is just a normal bash file. You can create and set
   variables, perform logic, etc. and it will be invoked every time xwintog is
-  called. The only requirement for it is that the variables `WINDOW` and
-  `COMMAND` get set before it ends.
+  called. The only requirement for it is that the variables `APP_WINDOW_SEARCH`
+  and `APP_COMMAND` get set before it ends.
 
 ## See Also
 

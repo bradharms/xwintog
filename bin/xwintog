@@ -12,9 +12,9 @@ declare -g __xwintog_script="$0";
 declare -g APP;
 
 # Config options
-declare -g WINDOW;
-declare -g COMMAND;
-declare -g FILTER;
+declare -g APP_COMMAND;
+declare -g APP_WINDOW_SEARCH;
+declare -g APP_WINDOW_SEARCH_FILTER;
 
 __xwintog.main() {
   APP="$1";
@@ -61,16 +61,17 @@ __xwintog.loadConfig() {
   fi
 
   # Verify all required parts of the app's config are present
-  if [ -z "$WINDOW" ] || [ -z "$COMMAND" ]; then
-    echo >&2 "Error: The following required details for app named \"$APP\""\
-      "were not provided by the xwintog configuration file at" \
+  if [ -z "$APP_WINDOW_SEARCH" ] || [ -z "$APP_COMMAND" ]; then
+    echo >&2 \
+      "Error: The following required configuration variables for app" \
+      "named \"$APP\" were not provided by the xwintog configuration file at" \
       "\"$__xwintog_configPath\":";
     echo >&2;
-    if [ -z "$WINDOW" ]; then
-      echo >&2 "  WINDOW=\"<WINDOW_ID_STRING>\"";
+    if [ -z "$APP_WINDOW_SEARCH" ]; then
+      echo >&2 '  APP_WINDOW_SEARCH="<WINDOW_ID_STRING>"';
     fi
-    if [ -z "$COMMAND" ]; then
-      echo >&2 "  COMMAND=\"<COMMAND>\"";
+    if [ -z "$APP_COMMAND" ]; then
+      echo >&2 '  APP_COMMAND="<COMMAND>"';
     fi;
     echo >&2;
     echo >&2 "Please ensure these values are set by the configuration file" \
@@ -88,16 +89,16 @@ __xwintog.showHelpUrl() {
 __xwintog.toggle() {
   # Find the windows matching the search criteria
   declare winIds;
-  winIds=$(xdotool search $WINDOW || true);
+  winIds=$(xdotool search $APP_WINDOW_SEARCH || true);
 
   # If a filter exists for the app, filter them
-  if [ -n "$FILTER" ]; then
-    winIds=$(echo "$winIds" | $FILTER)
+  if [ -n "$APP_WINDOW_SEARCH_FILTER" ]; then
+    winIds=$(echo "$winIds" | $APP_WINDOW_SEARCH_FILTER)
   fi;
 
   # If no results were returned, assume we need to open the app
   if [ -z "$winIds" ]; then
-    $COMMAND &
+    $APP_COMMAND &
     exit 0;
   fi
 
